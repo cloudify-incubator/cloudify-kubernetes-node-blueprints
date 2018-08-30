@@ -169,11 +169,13 @@ node_templates:
         tcp:
           - 53
           - 80
+          - 179
           - 443
           - 2379
           - 4001
           - 4789
           - 6443
+          - 6666
           - 6783
           - 6784
           - 8080
@@ -185,6 +187,7 @@ node_templates:
           - 6783
           - 6784
           - 8285
+          - 8472
     relationships:
       - type: cloudify.relationships.connected_to
         target: network
