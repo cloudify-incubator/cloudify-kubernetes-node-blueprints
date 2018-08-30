@@ -62,9 +62,6 @@ node_templates:
       aws_config: *aws_config
       image_id: { get_input: ami }
       instance_type: { get_input: instance_type }
-    relationships:
-      - type: cloudify.aws.relationships.instance_connected_to_eni
-        target: kubernetes_node_nic
     interfaces:
       cloudify.interfaces.lifecycle:
         create:
@@ -96,6 +93,11 @@ node_templates:
                   process:
                     hyperkube:
                       name: hyperkube
+    relationships:
+      - type: cloudify.aws.relationships.instance_connected_to_eni
+        target: kubernetes_node_nic
+      - type: cloudify.relationships.depends_on
+        target: cloudify_host_cloud_config
 
   kubernetes_node_nic:
     type: cloudify.aws.nodes.Interface
