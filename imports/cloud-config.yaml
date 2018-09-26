@@ -8,10 +8,11 @@ node_templates:
         - "mkdir -p /etc/systemd/system"
         groups:
           - docker
+          - centos
         users:
           - name: { get_input: agent_user }
             primary-group: wheel
-            groups: docker
+            groups: docker, centos
             shell: /bin/bash
             sudo: ['ALL=(ALL) NOPASSWD:ALL']
             ssh-authorized-keys:
