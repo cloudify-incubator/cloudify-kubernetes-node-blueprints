@@ -11,6 +11,7 @@ imports:
   - plugin:cloudify-fabric-plugin
   - plugin:cloudify-utilities-plugin
   - imports/kubernetes.yaml
+  - imports/cloud-config.yaml
 
 inputs:
 
@@ -35,7 +36,7 @@ inputs:
     default:
       publisher: OpenLogic
       offer: CentOS
-      sku: '7.3'
+      sku: '7-CI'
       version: latest
 
   agent_user:
@@ -58,61 +59,6 @@ dsl_definitions:
 
 node_templates:
 
-  k8s_node_docker:
-    type: cloudify.azure.nodes.compute.VirtualMachineExtension
-    properties:
-      location: { get_secret: location }
-      retry_after: { get_input: retry_after }
-      azure_config: *azure_config
-    interfaces:
-      cloudify.interfaces.lifecycle:
-        create:
-          inputs:
-            resource_config:
-              publisher: Microsoft.Azure.Extensions
-              type: CustomScript
-              typeHandlerVersion: '2.0'
-              autoUpgradeMinorVersion: true
-              settings:
-                commandToExecute:
-                  concat:
-                    - |
-                      cat <<EOF > /etc/yum.repos.d/docker.repo
-                      [dockerrepo]
-                      name=Docker Repository
-                      baseurl=https://yum.dockerproject.org/repo/main/centos/7
-                      enabled=1
-                      gpgcheck=1
-                      gpgkey=https://yum.dockerproject.org/gpg
-                      EOF
-                    - |
-                      cat <<EOF > /etc/yum.repos.d/kubernetes.repo
-                      [kubernetes]
-                      name=Kubernetes
-                      baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
-                      enabled=1
-                      gpgcheck=1
-                      repo_gpgcheck=1
-                      gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
-                              https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-                      EOF
-                      setenforce 0
-                    - |
-                      yum -t -y install docker-engine-1.13.1 kubelet-1.9.6-0 kubeadm-1.9.6-0 kubectl-1.9.6-0 kubernetes-cni-0.6.0-0 ca-certificates
-                      update-ca-trust force-enable
-                      swapon -s | awk '{print "sudo swapoff " $1}' | grep -v "Filename" | sh -
-                      sed -i 's|cgroup-driver=systemd|cgroup-driver=systemd --provider-id='`hostname`'|g' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-                      sed -i 's|/usr/bin/dockerd|/usr/bin/dockerd --exec-opt native.cgroupdriver=systemd|g' /usr/lib/systemd/system/docker.service
-                      systemctl enable docker && systemctl start docker
-                      systemctl enable kubelet && systemctl start kubelet
-                      iptables --flush
-                      iptables -tnat --flush
-                      mkdir -p /tmp/data
-                      chcon -Rt svirt_sandbox_file_t /tmp/data
-    relationships:
-    - type: cloudify.azure.relationships.vmx_contained_in_vm
-      target: k8s_node_host
-
   k8s_node_host:
     type: cloudify.azure.nodes.compute.VirtualMachine
     properties:
@@ -126,9 +72,7 @@ node_templates:
         storageProfile:
           imageReference: { get_input: image}
         osProfile:
-          customData: |
-            #!/bin/bash
-            echo "hello"
+          customData: { get_attribute: [ cloudify_host_cloud_config, cloud_config ] }
           adminUsername: { get_input: agent_user }
           adminPassword: ''
           linuxConfiguration:

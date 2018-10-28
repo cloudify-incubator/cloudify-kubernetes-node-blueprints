@@ -12,7 +12,7 @@ WAVE_UTILS_CMD = [
   'sudo chmod a+x /usr/local/bin/weave',
   'sudo curl -L git.io/scope -o /usr/local/bin/scope',
   'sudo chmod a+x /usr/local/bin/scope',
-  '/usr/local/bin/scope launch',
+  'sudo /usr/local/bin/scope launch',
 ]
 
 

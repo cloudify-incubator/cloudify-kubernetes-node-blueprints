@@ -33,7 +33,7 @@ sudo yum makecache
 
 sudo setenforce 0
 
-sudo yum -t -y install docker-engine-1.12.6 kubelet-1.9.6-0 kubeadm-1.9.6-0 kubectl-1.9.6-0 kubernetes-cni-0.6.0-0 ca-certificates
+sudo yum -t -y install docker-engine-1.13.1 kubelet-1.9.6-0 kubeadm-1.9.6-0 kubectl-1.9.6-0 kubernetes-cni-0.6.0-0 ca-certificates
 
 sudo groupadd docker
 sudo usermod -aG docker `whoami`
