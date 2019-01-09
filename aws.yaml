@@ -58,7 +58,8 @@ node_templates:
         ImageId: { get_input: ami }
         InstanceType: { get_input: instance_type }
         kwargs:
-          Placement: { get_secret: availability_zone }
+          Placement:
+            AvailabilityZone: { get_secret: availability_zone }
           UserData: { get_attribute: [ cloudify_host_cloud_config, cloud_config ] }
       client_config: *client_config
       Tags:
