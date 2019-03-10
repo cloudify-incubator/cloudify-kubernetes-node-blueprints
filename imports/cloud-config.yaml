@@ -5,9 +5,7 @@ node_templates:
     properties:
       resource_config:
         bootcmd:
-        - "dhclient"
         - "yum clean all"
-        - "yum repolist"
         - "mkdir -p /etc/systemd/system"
         groups:
           - docker
@@ -52,6 +50,7 @@ node_templates:
           - [kubeadm, 1.9.7-0]
           - [kubectl, 1.9.7-0]
           - [kubernetes-cni, 0.6.0-0]
+          - [git]
         runcmd:
           - [ setenforce, 0 ]
           - [ update-ca-trust, force-enable ]
